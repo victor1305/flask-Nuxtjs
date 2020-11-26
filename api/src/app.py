@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1111@localhost/transporter' #Donde se encuentra la BBDD, viene en la documentación de SQL Alchemy
@@ -18,18 +19,20 @@ class Partner(db.Model): #ORM Crea las tablas en mySql con estos datos: (el id s
     address = db.Column(db.String(100))
     phone = db.Column(db.Integer)
     web = db.Column(db.String(50))
+    created = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, name, address, phone, web): #definimos los campos
+    def __init__(self, name, address, phone, web, created): #definimos los campos
         self.name = name
         self.address = address
         self.phone = phone
         self.web = web
+        self.created = created
 
 db.create_all()
 
 class PartnerSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'address', 'phone', 'web')
+        fields = ('id', 'name', 'address', 'phone', 'web', 'created')
 
 partner_schema = PartnerSchema()
 partners_schema = PartnerSchema(many = True) #Con esto habilito la posibilidad de recibir multiples respuestas de la BBDD
@@ -41,15 +44,14 @@ partners_schema = PartnerSchema(many = True) #Con esto habilito la posibilidad d
 @app.route('/new', methods = ['POST'])
 def create_partner():
 
-    print("LLEGA AQUI")
-
     #Guardo los datos en variables:
 
     name = request.json['name']
     address = request.json['address']
     phone = request.json['phone']
     web = request.json['web']
-    new_partner = Partner(name, address, phone, web) #Con esto se crea una nueva tarea que se guarda en la variable "newPartner"
+    created = datetime.now()
+    new_partner = Partner(name, address, phone, web, created) #Con esto se crea una nueva tarea que se guarda en la variable "newPartner"
 
     #El siguiente paso es guardarlo en la BBDD
 
@@ -60,18 +62,45 @@ def create_partner():
 
     return partner_schema.jsonify(new_partner)
 
-# READ
+# READS
 
-@app.route('/partners', methods = ['GET'])
+@app.route('/', methods = ['GET'])
 def get_partners():
     allPartners = Partner.query.all()
     result = partners_schema.dump(allPartners)
 
     return jsonify(result) #Jsonify convierte string en json
 
+# Read with query
+
+@app.route('/order', methods = ['POST', 'GET'])
+def get_partners_order():
+
+    if request.json['order'] == 'az':
+        query = Partner.query.order_by(Partner.name).all()
+        result = partners_schema.dump(query)
+
+    elif request.json['order'] == 'za':
+        query = Partner.query.order_by(Partner.name.desc()).all()
+        result = partners_schema.dump(query)
+
+    elif request.json['order'] == 'oldFirst':
+        query = Partner.query.order_by(Partner.created.desc()).all()
+        result = partners_schema.dump(query)
+
+    elif request.json['order'] == 'newFirst':
+        query = Partner.query.order_by(Partner.created).all()
+        result = partners_schema.dump(query)
+
+    else:
+        allPartners = Partner.query.all()
+        result = partners_schema.dump(allPartners)
+
+    return jsonify(result)
+
 # DELETE
 
-@app.route('/partner/<id>', methods = ['DELETE'])
+@app.route('/<id>', methods = ['DELETE'])
 def delete_partner(id):
 
     partner = Partner.query.get(id)
