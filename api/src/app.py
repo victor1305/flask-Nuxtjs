@@ -62,19 +62,11 @@ def create_partner():
 
     return partner_schema.jsonify(new_partner)
 
-# READS
 
-@app.route('/', methods = ['GET'])
+# READ with querys
+
+@app.route('/', methods = ['POST', 'GET'])
 def get_partners():
-    allPartners = Partner.query.all()
-    result = partners_schema.dump(allPartners)
-
-    return jsonify(result) #Jsonify convierte string en json
-
-# Read with query
-
-@app.route('/order', methods = ['POST', 'GET'])
-def get_partners_order():
 
     if request.json['order'] == 'az':
         query = Partner.query.order_by(Partner.name).all()
@@ -96,7 +88,8 @@ def get_partners_order():
         allPartners = Partner.query.all()
         result = partners_schema.dump(allPartners)
 
-    return jsonify(result)
+    return jsonify(result) #Jsonify convierte string en json
+
 
 # DELETE
 

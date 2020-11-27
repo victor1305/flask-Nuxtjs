@@ -1,10 +1,11 @@
 <template>
   <v-card class="mx-auto card">
     <v-card-title class = "card-title">{{name}}</v-card-title>
-    <v-card-text>{{address}}</v-card-text>
-    <v-card-text>Tel: {{phone}}</v-card-text>
-    <v-card-text>{{web}}</v-card-text>
-    <v-card-text>Añadido el: {{created}}</v-card-text>
+    <v-card-text class="v-card-text">Tel: {{phone}}</v-card-text>
+    <v-card-text class="v-card-text">{{address}}</v-card-text>
+    <v-card-text class="v-card-text">{{web}}</v-card-text>
+    <v-card-text class="v-card-text-date">Añadido el:</v-card-text>
+    <v-card-text class="v-card-text">{{created}}</v-card-text> 
     <v-card-actions>
         <v-spacer></v-spacer>
         <slot name="button"></slot>
@@ -25,7 +26,15 @@ export default {
 }
 
 .card-title {
-    color: #35495e;
+    color: #3b8070;;
 }
 
+.v-card-text {
+    padding: 4px;
+}
+
+.v-card-text-date{
+    padding-top: 4px;
+    padding-bottom: 0px;
+}
 </style>

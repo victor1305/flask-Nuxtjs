@@ -46,10 +46,10 @@
           </div>
       </form>
     </b-modal>
-    <div class="card-container">
+    <div class="card-container" v-if="partners.length > 0">
       <div class = "form-order-container">
-        <b-form inline action="" v-on:submit.prevent="get_partners_order" class = "form-order">
-          <b-form-select v-model="selected" :options="options" size="sm" v-on:submit.prevent="get_partners" class = "select-order"></b-form-select>
+        <b-form inline action="" v-on:submit.prevent="get_partners" class = "form-order">
+          <b-form-select v-model="selected" :options="options" size="sm" class = "select-order"></b-form-select>
           <button class = "order-bnt">Ordenar</button>
         </b-form>
       </div>
@@ -103,8 +103,6 @@ export default {
       partners: [
 
       ],
-      nameState: null,
-      submittedNames: [],
       isModalActive: false,
       name: "",
       address: "",
@@ -123,61 +121,41 @@ export default {
 
   methods: {
 
-    get_partners_order() {
-      return this.$axios.post('/order', {
+    get_partners() {
+      return this.$axios.post('/', {
             order: this.selected
         })
         .then(response => {
           this.partners = response.data
-          console.log(this.selected)
-          console.log(this.partners)
       })
 
       .catch(error => {
         console.log(error)
       })
-    },
-
-    get_partners() {
-      const path = `http://localhost:5000/`
-      axios.get(path)
-      .then(response => {
-        this.partners = response.data
-        console.log(this.selected)
-        console.log(this.partners)
-      })
-
-      .catch(error => {
-        console.log(error)
-      })
-    
     },
 
     create_partner() {
-        return this.$axios.post('/new', {
-            name: this.name,
-            address: this.address,
-            phone: this.phone,
-            web: this.web
-        })
-        .then( () => {
-            this.name = '',
-            this.address = '',
-            this.phone = '',
-            this.web = '',
-            this.isModalActive = false
-            this.get_partners()
-        })
-        .catch(error => console.log(error))
+      return this.$axios.post('/new', {
+          name: this.name,
+          address: this.address,
+          phone: this.phone,
+          web: this.web
+      })
+      .then( () => {
+          this.name = '',
+          this.address = '',
+          this.phone = '',
+          this.web = '',
+          this.isModalActive = false
+          this.get_partners()
+      })
+      .catch(error => console.log(error))
     },
 
     delete_partner(id) {
-      const path = `http://localhost:5000/${id}`
-      axios.delete(path)
-        .then(() => this.get_partners())
-        .catch(error => {
-          console.log(error)
-        }) 
+      return this.$axios.delete(`/${id}`)
+      .then(() => this.get_partners())
+      .catch(error => console.log(error))
     }
   },
 
@@ -203,6 +181,10 @@ export default {
 .btn-add:hover {
   text-decoration: none;
   color: #3b8070;
+}
+
+.btn-delete {
+  border-color: #3b8070;
 }
 
 .btn-delete:hover {
