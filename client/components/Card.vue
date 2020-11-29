@@ -26,7 +26,7 @@ export default {
 }
 
 .card-title {
-    color: #3b8070;;
+    color: #35495e;;
 }
 
 .v-card-text {

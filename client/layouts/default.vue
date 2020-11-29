@@ -25,13 +25,6 @@ html {
   
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
 .web-container {
   background-color: #FAFAFA
 }
